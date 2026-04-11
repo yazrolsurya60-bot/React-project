@@ -89,7 +89,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex items-center gap-3 relative z-10">
           <div className="w-11 h-11 bg-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-900/50">
-              <img src="/src/assets/Oak_Coffe.png" alt="Gambar" className="w-full h-full object-cover" />
+              <img src="/src/assets/Oak_Coffe.png" alt="Gambar" className="w-full h-full object-cover  rounded-xl" />
           </div>
           <div>
             <h1 className="text-white font-black text-xl tracking-wide">Oak Coffe System</h1>
