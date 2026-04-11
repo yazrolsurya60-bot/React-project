@@ -152,9 +152,9 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-10 lg:hidden">
             <div className="w-10 h-10 bg-red-600 rounded-2xl flex items-center justify-center">
-              <img src="/src/assets/Oak_Coffe.png" alt="Gambar logo" />
+              <img src="/src/assets/Oak_Coffe.png" alt="Gambar" />
             </div>
-            <h1 className="text-gray-900 font-black text-xl">CaféPOS</h1>
+            <h1 className="text-gray-900 font-black text-xl">Oak Coffe System</h1>
           </div>
 
           {/* Heading */}
