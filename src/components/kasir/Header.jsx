@@ -43,7 +43,7 @@ export default function Header() {
       {/* ── Logo & Brand ── */}
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40 overflow-hidden">
-          <div className="w-full h-full"><img src="/src/assets/Oak_Coffe.png" alt="Gambar Logo" /></div>
+          <img src="/src/assets/Oak_Coffe.png" alt="Gambar Logo" className="w-full h-full object-cover" />
         </div>
         <div>
           <h1 className="text-white font-bold text-base leading-tight tracking-wide">Oak Caffe System</h1>
