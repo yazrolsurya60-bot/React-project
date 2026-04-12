@@ -8,7 +8,8 @@ import CategoryFilter from '../components/kasir/CategoryFilter';
 import ProductGrid from '../components/kasir/ProductGrid';
 import CartPanel from '../components/kasir/CartPanel';
 import CustomizerModal from '../components/kasir/CustomizerModal';
-import { menuData, CATEGORIES } from '../data/menuData';
+import { CATEGORIES } from '../data/menuData';
+import useMenuStore from '../store/useMenuStore';
 import useCartStore from '../store/useCartStore';
 
 export default function KasirPage() {
@@ -18,9 +19,11 @@ export default function KasirPage() {
 
   const { addItem } = useCartStore();
 
+  const menus = useMenuStore((state) => state.menus);
+
   // ── Filter & Search ────────────────────────────────────────
   const filteredMenu = useMemo(() => {
-    let result = menuData;
+    let result = menus;
 
     if (activeCategory !== 'semua') {
       result = result.filter((item) => item.category === activeCategory);
@@ -37,7 +40,7 @@ export default function KasirPage() {
     }
 
     return result;
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery, activeCategory, menus]);
 
   // ── Hitung jumlah item per kategori ───────────────────────
   const categoryCounts = useMemo(() => {
@@ -45,11 +48,11 @@ export default function KasirPage() {
     CATEGORIES.forEach(({ id }) => {
       counts[id] =
         id === 'semua'
-          ? menuData.length
-          : menuData.filter((item) => item.category === id).length;
+          ? menus.length
+          : menus.filter((item) => item.category === id).length;
     });
     return counts;
-  }, []);
+  }, [menus]);
 
   // ── Handler: tambah ke cart ────────────────────────────────
   const handleAddToCart = (item) => {
