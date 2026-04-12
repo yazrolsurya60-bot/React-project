@@ -56,7 +56,12 @@ export default function LoginPage() {
       if (user) {
         // Simpan sesi sederhana ke sessionStorage
         sessionStorage.setItem('pos_user', JSON.stringify(user));
-        navigate('/kasir');
+        
+        if (user.role === 'Administrator') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/kasir');
+        }
       } else {
         setError('Username atau password salah. Silakan coba lagi.');
         setLoading(false);
