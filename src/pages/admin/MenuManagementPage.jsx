@@ -1,18 +1,74 @@
 import { useState } from 'react';
 import { Plus, Edit2, Trash2, Search, X } from 'lucide-react';
-import { menuData } from '../../data/menuData';
+import useMenuStore from '../../store/useMenuStore';
 
 export default function MenuManagementPage() {
-  const [menus, setMenus] = useState(menuData);
+  const { menus, addMenu, editMenu, deleteMenu } = useMenuStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('umum'); // umum vs resep
+  
+  // State form
+  const [formData, setFormData] = useState({
+    id: null,
+    name: '',
+    category: 'kopi',
+    price: 0,
+    description: '',
+    image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&q=80', // Default mock image
+  });
 
   // Filtered
   const filteredMenus = menus.filter(m => 
     m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     m.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleOpenAdd = () => {
+    setFormData({
+      id: null,
+      name: '',
+      category: 'kopi',
+      price: '',
+      description: '',
+      image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&q=80',
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (item) => {
+    setFormData(item);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm('Yakin ingin menghapus menu ini? (Akan terhapus juga di kasir)')) {
+      deleteMenu(id);
+    }
+  };
+
+  const handleSaveMenu = () => {
+    if (!formData.name || !formData.price) {
+      alert("Nama dan Harga wajib diisi");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      price: Number(formData.price),
+      isAvailable: true,
+      hasCustomizer: false,
+      tags: ['new'],
+    };
+
+    if (formData.id) {
+      editMenu(formData.id, payload);
+    } else {
+      addMenu(payload);
+    }
+    
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -23,7 +79,7 @@ export default function MenuManagementPage() {
           <p className="text-gray-500 text-sm mt-1">Kelola harga, foto, dan resep bahan baku.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenAdd}
           className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-colors shadow-sm"
         >
           <Plus size={18} />
@@ -77,15 +133,15 @@ export default function MenuManagementPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-sm font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-md border border-green-100">
-                      Ya (3 Bahan)
+                      Mock (0 Bahan)
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                      <button onClick={() => handleOpenEdit(item)} className="p-2 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
                         <Edit2 size={16} />
                       </button>
-                      <button className="p-2 text-gray-400 hover:text-red-600 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors">
+                      <button onClick={() => handleDelete(item.id)} className="p-2 text-gray-400 hover:text-red-600 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors">
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -105,14 +161,14 @@ export default function MenuManagementPage() {
         </div>
       </div>
 
-      {/* ── Add/Edit Modal (Mock) ── */}
+      {/* ── Add/Edit Modal ── */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-black text-white">
-              <h3 className="font-bold text-lg">Tambah Menu Baru</h3>
+              <h3 className="font-bold text-lg">{formData.id ? 'Edit Menu' : 'Tambah Menu Baru'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
                 <X size={20} />
               </button>
@@ -141,58 +197,57 @@ export default function MenuManagementPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1">Nama Menu</label>
-                      <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black" placeholder="Mis: Kopi Susu Gula Aren" />
+                      <input 
+                        type="text" 
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black" 
+                        placeholder="Mis: Kopi Susu Gula Aren" 
+                      />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1">Kategori</label>
-                      <select className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black">
-                        <option>Kopi</option>
-                        <option>Non-Kopi</option>
-                        <option>Makanan</option>
+                      <select 
+                        value={formData.category}
+                        onChange={(e) => setFormData({...formData, category: e.target.value})}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                      >
+                        <option value="kopi">Kopi</option>
+                        <option value="non-kopi">Non-Kopi</option>
+                        <option value="makanan">Makanan</option>
+                        <option value="snack">Snack</option>
+                        <option value="dessert">Dessert</option>
                       </select>
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">Harga Jual (Rp)</label>
-                    <input type="number" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black" placeholder="25000" />
+                    <input 
+                      type="number" 
+                      value={formData.price}
+                      onChange={(e) => setFormData({...formData, price: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black" 
+                      placeholder="25000" 
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">Deskripsi</label>
-                    <textarea rows={3} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black" placeholder="Deskripsi singkat..."></textarea>
+                    <textarea 
+                      rows={3} 
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black" 
+                      placeholder="Deskripsi singkat..."
+                    ></textarea>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-start gap-3">
-                    <p className="text-xs text-blue-800">Tambahkan bahan baku yang akan dikurangi setiap kali menu ini terjual.</p>
+                    <p className="text-xs text-blue-800">Tambahkan bahan baku yang akan dikurangi setiap kali menu ini terjual. (Mock UI)</p>
                   </div>
-                  
-                  <div className="space-y-3">
-                    {/* Resep Item 1 */}
-                    <div className="flex items-center gap-3">
-                      <select className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                        <option>Biji Kopi Arabika</option>
-                        <option>Susu UHT</option>
-                        <option>Gula Aren</option>
-                      </select>
-                      <input type="number" placeholder="Qty" className="w-20 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm" value="15" readOnly />
-                      <span className="text-sm font-semibold text-gray-500 w-10">gr</span>
-                      <button className="text-red-500 p-2 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
-                    </div>
-                    {/* Resep Item 2 */}
-                    <div className="flex items-center gap-3">
-                      <select className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                        <option>Susu UHT</option>
-                        <option>Gula Aren</option>
-                      </select>
-                      <input type="number" placeholder="Qty" className="w-20 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm" value="100" readOnly />
-                      <span className="text-sm font-semibold text-gray-500 w-10">ml</span>
-                      <button className="text-red-500 p-2 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
-                    </div>
-                  </div>
-                  
                   <button className="w-full py-2 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold text-sm mt-2 hover:bg-gray-50 hover:border-gray-400 transition-colors">
-                    + Tambah Bahan Baku
+                    + Tambah Bahan Baku (Segera Hadir)
                   </button>
                 </div>
               )}
@@ -206,8 +261,8 @@ export default function MenuManagementPage() {
               >
                 Batal
               </button>
-              <button className="px-6 py-2 font-bold text-sm text-white bg-black rounded-xl hover:bg-gray-900 transition-colors shadow-md">
-                Simpan Menu
+              <button onClick={handleSaveMenu} className="px-6 py-2 font-bold text-sm text-white bg-black rounded-xl hover:bg-gray-900 transition-colors shadow-md">
+                Simpan
               </button>
             </div>
             
