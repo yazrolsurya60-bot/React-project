@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ArrowUpRight, ArrowDownRight, PackageX, TrendingUp, DollarSign, ShoppingBag } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const mockChartData = [
   { name: 'Sen', total: 1200000 },
@@ -139,9 +140,9 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <button className="w-full mt-4 py-3 bg-black hover:bg-gray-900 text-white font-bold rounded-xl text-sm transition-colors">
+          <Link to="/admin/inventory" className="w-full mt-4 py-3 bg-black hover:bg-gray-900 text-white font-bold rounded-xl text-sm transition-colors text-center block">
             Lihat Semua Inventori
-          </button>
+          </Link>
         </div>
       </div>
       
