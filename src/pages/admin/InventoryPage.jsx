@@ -1,20 +1,37 @@
 import { useState } from 'react';
 import { PackagePlus, ArrowDownToLine, ArrowUpFromLine, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
-
-const mockInventory = [
-  { id: 1, name: 'Biji Kopi Arabika', current: 500, unit: 'g', limit: 1000 },
-  { id: 2, name: 'Susu UHT', current: 2000, unit: 'ml', limit: 5000 },
-  { id: 3, name: 'Sirup Vanilla', current: 850, unit: 'ml', limit: 300 },
-  { id: 4, name: 'Cup Plastik', current: 20, unit: 'pcs', limit: 50 },
-  { id: 5, name: 'Gula Aren', current: 2500, unit: 'g', limit: 1000 },
-];
+import useInventoryStore from '../../store/useInventoryStore';
 
 export default function InventoryPage() {
+  const { inventory, addStock, updateStock } = useInventoryStore();
   const [searchQuery, setSearchQuery] = useState('');
   
-  const filteredInventory = mockInventory.filter(item => 
+  const filteredInventory = inventory.filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleStockInAll = () => {
+    // Meminta nama barang (simulasi sederhana jika tidak klik per-item)
+    alert("Pilih barang khusus di tabel dan gunakan tombol panah ke atas untuk tambah stok cepat.");
+  };
+
+  const handleAdjustmentAll = () => {
+    alert("Pilih barang khusus di tabel dan gunakan tombol panah ke bawah untuk kurangi stok.");
+  };
+
+  const handleQuickAdd = (item) => {
+    const val = prompt(`Berapa banyak stok ${item.name} yang baru masuk? (Satuan: ${item.unit})`, '10');
+    if (val && !isNaN(val)) {
+      addStock(item.id, Number(val));
+    }
+  };
+
+  const handleQuickMinus = (item) => {
+    const val = prompt(`Buat penyesuaian stok. Berapa stok ${item.name} aktual saat ini? (Sistem tercatat: ${item.current})`, item.current);
+    if (val && !isNaN(val)) {
+      updateStock(item.id, Number(val));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -25,11 +42,11 @@ export default function InventoryPage() {
           <p className="text-gray-500 text-sm mt-1">Pantau, tambah, dan sesuaikan stok bahan mentah.</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 bg-white border border-gray-200 text-black px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors shadow-sm">
+          <button onClick={handleAdjustmentAll} className="flex items-center gap-2 bg-white border border-gray-200 text-black px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors shadow-sm">
             <ArrowDownToLine size={18} />
             Penyesuaian
           </button>
-          <button className="flex items-center gap-2 bg-black hover:bg-gray-900 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-colors shadow-sm">
+          <button onClick={handleStockInAll} className="flex items-center gap-2 bg-black hover:bg-gray-900 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-colors shadow-sm">
             <PackagePlus size={18} />
             Stock In
           </button>
@@ -95,10 +112,10 @@ export default function InventoryPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="p-2 text-gray-500 hover:text-white bg-gray-50 hover:bg-black rounded-lg transition-colors border border-gray-200 hover:border-black" title="Tambah Stok">
+                        <button onClick={() => handleQuickAdd(item)} className="p-2 text-gray-500 hover:text-white bg-gray-50 hover:bg-black rounded-lg transition-colors border border-gray-200 hover:border-black" title="Tambah Stok Masuk">
                           <ArrowUpFromLine size={16} />
                         </button>
-                        <button className="p-2 text-gray-500 hover:text-white bg-gray-50 hover:bg-black rounded-lg transition-colors border border-gray-200 hover:border-black" title="Kurangi/Sesuaikan Stok">
+                        <button onClick={() => handleQuickMinus(item)} className="p-2 text-gray-500 hover:text-white bg-gray-50 hover:bg-black rounded-lg transition-colors border border-gray-200 hover:border-black" title="Buat Penyesuaian">
                           <ArrowDownToLine size={16} />
                         </button>
                       </div>
