@@ -25,8 +25,10 @@ export default function AdminLayout() {
       
       {/* ── Mobile Header ── */}
       <div className="md:hidden flex items-center justify-between p-4 bg-black text-white">
-        <div className="flex items-center gap-2">
-          <img src={oakLogo} alt="Oak Coffee" className="h-8 w-8 object-contain" />
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center shrink-0">
+            <img src={oakLogo} alt="Oak Coffee" className="w-full h-full object-cover rounded-lg" />
+          </div>
           <span className="font-bold text-lg tracking-wider">OAK ADMIN</span>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-gray-800 rounded-md">
@@ -36,8 +38,10 @@ export default function AdminLayout() {
 
       {/* ── Sidebar (30% Black Theme) ── */}
       <aside className={`${isSidebarOpen ? 'block' : 'hidden'} md:block w-64 bg-black text-white flex-shrink-0 flex flex-col h-full absolute md:relative z-20`}>
-        <div className="p-6 flex items-center justify-center border-b border-gray-800 hidden md:flex">
-          <img src={oakLogo} alt="Oak Coffee" className="h-16 w-16 object-contain drop-shadow-md" />
+        <div className="p-6 flex items-center justify-center border-b border-gray-800 hidden md:flex shrink-0">
+          <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-900/50">
+            <img src={oakLogo} alt="Oak Coffee" className="w-full h-full object-cover rounded-xl" />
+          </div>
         </div>
         
         <div className="p-4 flex-1">
