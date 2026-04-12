@@ -1,6 +1,7 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ArrowUpRight, ArrowDownRight, PackageX, TrendingUp, DollarSign, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import useInventoryStore from '../../store/useInventoryStore';
 
 const mockChartData = [
   { name: 'Sen', total: 1200000 },
@@ -12,13 +13,10 @@ const mockChartData = [
   { name: 'Min', total: 5100000 },
 ];
 
-const mockLowStock = [
-  { id: 1, name: 'Biji Kopi Arabika', current: '500g', min: '1000g' },
-  { id: 2, name: 'Susu UHT', current: '2L', min: '5L' },
-  { id: 3, name: 'Cup Plastik', current: '20pcs', min: '50pcs' },
-];
-
 export default function DashboardPage() {
+  const { inventory, addStock } = useInventoryStore();
+  const lowStock = inventory.filter(item => item.current <= item.limit);
+
   return (
     <div className="space-y-6">
       
@@ -127,17 +125,25 @@ export default function DashboardPage() {
           </div>
           
           <div className="space-y-4 flex-1">
-            {mockLowStock.map((item) => (
+            {lowStock.length > 0 ? lowStock.map((item) => (
               <div key={item.id} className="p-4 border border-red-50 bg-red-50/50 rounded-xl flex items-center justify-between">
                 <div>
                   <h4 className="font-semibold text-gray-900">{item.name}</h4>
-                  <p className="text-xs font-medium text-gray-500 mt-0.5">Sisa: <span className="text-red-600 font-bold">{item.current}</span> / Min: {item.min}</p>
+                  <p className="text-xs font-medium text-gray-500 mt-0.5">Sisa: <span className="text-red-600 font-bold">{item.current}{item.unit}</span> / Min: {item.limit}{item.unit}</p>
                 </div>
-                <button className="text-xs font-bold bg-white text-red-600 px-3 py-1.5 rounded flex-shrink-0 shadow-sm border border-red-100 hover:bg-red-50 transition-colors">
+                <button 
+                  onClick={() => {
+                    const amount = window.prompt(`Tambah stok ${item.name} (satuan: ${item.unit}):`, '50');
+                    if (amount && !isNaN(amount)) addStock(item.id, Number(amount));
+                  }}
+                  className="text-xs font-bold bg-white text-red-600 px-3 py-1.5 rounded flex-shrink-0 shadow-sm border border-red-100 hover:bg-red-50 transition-colors"
+                >
                   Restock
                 </button>
               </div>
-            ))}
+            )) : (
+              <div className="text-sm text-gray-500 text-center py-4">Semua stok bahan baku aman.</div>
+            )}
           </div>
 
           <Link to="/admin/inventory" className="w-full mt-4 py-3 bg-black hover:bg-gray-900 text-white font-bold rounded-xl text-sm transition-colors text-center block">
