@@ -7,9 +7,11 @@ import CartItem from './CartItem';
 import OrderSummary from './OrderSummary';
 import CheckoutModal from './CheckoutModal';
 import useCartStore from '../../store/useCartStore';
+import useHistoryStore from '../../store/useHistoryStore';
 
 export default function CartPanel() {
   const { items, clearCart, discount } = useCartStore();
+  const { addOrder } = useHistoryStore();
   const [showCheckout, setShowCheckout] = useState(false);
 
   // Computed
@@ -19,6 +21,20 @@ export default function CartPanel() {
   const totalQty = items.reduce((s, i) => s + i.quantity, 0);
 
   const isEmpty = items.length === 0;
+
+  const handleConfirmCheckout = () => {
+    // Save order strictly to history before clearing cart
+    addOrder({
+      items: [...items],
+      subtotal,
+      tax,
+      discount,
+      total,
+      totalQty
+    });
+    // Clear cart after checkout
+    clearCart();
+  };
 
   return (
     <>
@@ -107,10 +123,11 @@ export default function CartPanel() {
           tax={tax}
           discount={discount}
           total={total}
-          onConfirm={clearCart}
+          onConfirm={handleConfirmCheckout}
           onClose={() => setShowCheckout(false)}
         />
       )}
     </>
   );
 }
+
