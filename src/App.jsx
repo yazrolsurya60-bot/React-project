@@ -4,6 +4,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import KasirPage from './pages/KasirPage';
+import RiwayatPage from './pages/RiwayatPage';
 import AdminLayout from './components/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
 import MenuManagementPage from './pages/admin/MenuManagementPage';
@@ -29,6 +30,9 @@ function App() {
 
         {/* ── Halaman Kasir (terproteksi) ── */}
         <Route path="/kasir" element={<PrivateRoute element={<KasirPage />} />} />
+        
+        {/* ── Halaman Riwayat (terproteksi) ── */}
+        <Route path="/riwayat" element={<PrivateRoute element={<RiwayatPage />} />} />
 
         {/* ── Admin Dashboard (terproteksi) dengan Layout ── */}
         <Route path="/admin" element={<PrivateRoute element={<AdminLayout />} />}>
