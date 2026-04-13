@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ArrowUpRight, ArrowDownRight, PackageX, TrendingUp, DollarSign, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useInventoryStore from '../../store/useInventoryStore';
+import RestockModal from '../../components/admin/RestockModal';
 
 const mockChartData = [
   { name: 'Sen', total: 1200000 },
@@ -14,6 +16,7 @@ const mockChartData = [
 ];
 
 export default function DashboardPage() {
+  const [selectedItem, setSelectedItem] = useState(null);
   const { inventory, addStock } = useInventoryStore();
   const lowStock = inventory.filter(item => item.current <= item.limit);
 
@@ -131,15 +134,12 @@ export default function DashboardPage() {
                   <h4 className="font-semibold text-gray-900">{item.name}</h4>
                   <p className="text-xs font-medium text-gray-500 mt-0.5">Sisa: <span className="text-red-600 font-bold">{item.current}{item.unit}</span> / Min: {item.limit}{item.unit}</p>
                 </div>
-                <button 
-                  onClick={() => {
-                    const amount = window.prompt(`Tambah stok ${item.name} (satuan: ${item.unit}):`, '50');
-                    if (amount && !isNaN(amount)) addStock(item.id, Number(amount));
-                  }}
-                  className="text-xs font-bold bg-white text-red-600 px-3 py-1.5 rounded flex-shrink-0 shadow-sm border border-red-100 hover:bg-red-50 transition-colors"
-                >
-                  Restock
-                </button>
+                  <button 
+                    onClick={() => setSelectedItem(item)}
+                    className="text-xs font-bold bg-white text-red-600 px-3 py-1.5 rounded flex-shrink-0 shadow-sm border border-red-100 hover:bg-red-50 transition-colors"
+                  >
+                    Restock
+                  </button>
               </div>
             )) : (
               <div className="text-sm text-gray-500 text-center py-4">Semua stok bahan baku aman.</div>
@@ -152,6 +152,14 @@ export default function DashboardPage() {
         </div>
       </div>
       
+      {/* ── Restock Modal ── */}
+      {selectedItem && (
+        <RestockModal
+          item={selectedItem}
+          onConfirm={(id, amount) => addStock(id, amount)}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
     </div>
   );
 }
