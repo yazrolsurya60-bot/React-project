@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, PackagePlus, ArrowDownToLine } from 'lucide-react';
 
 export default function InventoryActionModal({ 
