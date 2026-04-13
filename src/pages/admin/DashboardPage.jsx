@@ -65,7 +65,7 @@ export default function DashboardPage() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm font-medium mb-1">Menu Terlaris</p>
-            <h3 className="text-xl font-black text-gray-900 break-words leading-tight mt-1">Kopi Susu Gula Aren</h3>
+            <h3 className="text-xl font-black text-gray-900 break-word leading-tight mt-1">Kopi Susu Gula Aren</h3>
             <div className="flex items-center gap-1 mt-2 text-gray-500 text-sm font-medium">
               <span>85 cup terjual</span>
             </div>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
                 </div>
                   <button 
                     onClick={() => setSelectedItem(item)}
-                    className="text-xs font-bold bg-white text-red-600 px-3 py-1.5 rounded flex-shrink-0 shadow-sm border border-red-100 hover:bg-red-50 transition-colors"
+                    className="text-xs font-bold bg-white text-red-600 px-3 py-1.5 rounded shrink-0 shadow-sm border border-red-100 hover:bg-red-50 transition-colors"
                   >
                     Restock
                   </button>
