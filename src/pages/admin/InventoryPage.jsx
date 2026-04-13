@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PackagePlus, ArrowDownToLine, ArrowUpFromLine, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import useInventoryStore from '../../store/useInventoryStore';
+import InventoryActionModal from '../../components/admin/InventoryActionModal';
 
 export default function InventoryPage() {
   const { inventory, addStock, updateStock } = useInventoryStore();
@@ -10,26 +11,29 @@ export default function InventoryPage() {
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const [modalConfig, setModalConfig] = useState({ isOpen: false, mode: 'restock', item: null });
+
   const handleStockInAll = () => {
-    // Meminta nama barang (simulasi sederhana jika tidak klik per-item)
-    alert("Pilih barang khusus di tabel dan gunakan tombol panah ke atas untuk tambah stok cepat.");
+    setModalConfig({ isOpen: true, mode: 'restock', item: null });
   };
 
   const handleAdjustmentAll = () => {
-    alert("Pilih barang khusus di tabel dan gunakan tombol panah ke bawah untuk kurangi stok.");
+    setModalConfig({ isOpen: true, mode: 'adjust', item: null });
   };
 
   const handleQuickAdd = (item) => {
-    const val = prompt(`Berapa banyak stok ${item.name} yang baru masuk? (Satuan: ${item.unit})`, '10');
-    if (val && !isNaN(val)) {
-      addStock(item.id, Number(val));
-    }
+    setModalConfig({ isOpen: true, mode: 'restock', item });
   };
 
   const handleQuickMinus = (item) => {
-    const val = prompt(`Buat penyesuaian stok. Berapa stok ${item.name} aktual saat ini? (Sistem tercatat: ${item.current})`, item.current);
-    if (val && !isNaN(val)) {
-      updateStock(item.id, Number(val));
+    setModalConfig({ isOpen: true, mode: 'adjust', item });
+  };
+
+  const executeAction = (id, amount) => {
+    if (modalConfig.mode === 'restock') {
+      addStock(id, amount);
+    } else {
+      updateStock(id, amount);
     }
   };
 
@@ -136,6 +140,16 @@ export default function InventoryPage() {
         </div>
       </div>
       
+      {/* ── Modal Inventory Action ── */}
+      {modalConfig.isOpen && (
+        <InventoryActionModal
+          mode={modalConfig.mode}
+          inventory={inventory}
+          initialItem={modalConfig.item}
+          onConfirm={executeAction}
+          onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        />
+      )}
     </div>
   );
 }
