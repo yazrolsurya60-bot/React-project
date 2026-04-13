@@ -296,7 +296,3 @@ FILE APP.jsx
     border-right-color: var(--border);
   }
 }
-
-
-
-disini terdapat bug, yang dimana ada pada halaman kasir ketika menekan fitur pengaturan dan riwayat malah kembali ke halaman login, disini perbaiki bug tersebut yang dimana ketika mengklik fitur riwayat akan menampilkan riwayat pemesanan yang pernah di lakukan. dan pengaturan bisa di hapus saja dan cukup buat fitur kasir dan riwayat.
