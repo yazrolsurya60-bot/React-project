@@ -35,7 +35,6 @@ export default function Header() {
   const navItems = [
     { to: '/kasir', icon: LayoutGrid, label: 'Kasir' },
     { to: '/riwayat', icon: History, label: 'Riwayat' },
-    { to: '/pengaturan', icon: Settings, label: 'Pengaturan' },
   ];
 
   return (
