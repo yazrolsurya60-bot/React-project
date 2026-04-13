@@ -9,19 +9,26 @@ export default function InventoryActionModal({
   onClose 
 }) {
   const [selectedItemId, setSelectedItemId] = useState(initialItem ? initialItem.id : '');
-  const [amountInput, setAmountInput] = useState('');
+  const [amountInput, setAmountInput] = useState(() => {
+    // Jalankan sekali saat modal pertama kali muncul dengan initialItem (Tombol Aksi Cepat)
+    if (initialItem) {
+      return mode === 'restock' ? '50' : initialItem.current.toString();
+    }
+    return '';
+  });
 
   const selectedItem = inventory.find(i => i.id === selectedItemId) || null;
 
-  useEffect(() => {
-    if (selectedItem) {
-      if (mode === 'restock') {
-        setAmountInput('50');
-      } else {
-        setAmountInput(selectedItem.current.toString());
-      }
+  // Handler saat user memilih barang dari dropdown
+  const handleItemSelect = (e) => {
+    const newId = e.target.value;
+    setSelectedItemId(newId);
+    
+    const item = inventory.find(i => i.id === newId);
+    if (item) {
+      setAmountInput(mode === 'restock' ? '50' : item.current.toString());
     }
-  }, [selectedItem, mode]);
+  };
 
   const handleInput = (val) => {
     const numeric = val.replace(/\D/g, '');
@@ -85,7 +92,7 @@ export default function InventoryActionModal({
               </label>
               <select
                 value={selectedItemId}
-                onChange={(e) => setSelectedItemId(e.target.value)}
+                onChange={handleItemSelect}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-black"
               >
                 <option value="" disabled>-- Pilih Bahan Baku --</option>
