@@ -17,7 +17,7 @@ export default function InventoryActionModal({
     return '';
   });
 
-  const selectedItem = inventory.find(i => i.id === selectedItemId) || null;
+  const selectedItem = inventory.find(i => i.id === selectedItemId) || 
 
   // Handler saat user memilih barang dari dropdown
   const handleItemSelect = (e) => {
