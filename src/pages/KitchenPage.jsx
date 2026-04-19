@@ -35,7 +35,7 @@ export default function KitchenPage() {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
         <div className="text-center max-w-md bg-gray-800 p-10 rounded-3xl shadow-2xl">
-          <div className="w-20 h-20 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl">
+          <div className="w-20 h-20 bg-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl">
             👨‍🍳
           </div>
           <h1 className="text-2xl font-black mb-2">Buka Shift Dapur</h1>
@@ -44,7 +44,7 @@ export default function KitchenPage() {
           </p>
           <button
             onClick={() => setAudioEnabled(true)}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg transition-transform active:scale-95 touch-none"
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg transition-transform active:scale-95 touch-none"
           >
             Mulai Shift & Aktifkan Suara
           </button>
