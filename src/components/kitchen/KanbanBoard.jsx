@@ -15,21 +15,21 @@ export default function KanbanBoard() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full min-w-[900px] pb-10">
       {/* ── Kolom 1: Menunggu ── */}
-      <Column title="Menunggu (To-Do)" count={todoItems.length} color="border-t-orange-500">
+      <Column title="Menunggu (To-Do)" count={todoItems.length} color="border-t-gray-300">
         {todoItems.map((item) => (
           <OrderCard key={item.kitchenItemId} item={item} />
         ))}
       </Column>
 
       {/* ── Kolom 2: Dimasak ── */}
-      <Column title="Dimasak (In Progress)" count={progressItems.length} color="border-t-blue-500">
+      <Column title="Dimasak (In Progress)" count={progressItems.length} color="border-t-red-600">
         {progressItems.map((item) => (
           <OrderCard key={item.kitchenItemId} item={item} />
         ))}
       </Column>
 
       {/* ── Kolom 3: Selesai ── */}
-      <Column title="Selesai (Done)" count={doneItems.length} color="border-t-green-500">
+      <Column title="Selesai (Done)" count={doneItems.length} color="border-t-gray-900">
         {doneItems.map((item) => (
           <OrderCard key={item.kitchenItemId} item={item} />
         ))}
