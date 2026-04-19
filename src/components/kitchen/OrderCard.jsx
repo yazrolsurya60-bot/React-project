@@ -137,7 +137,7 @@ export default function OrderCard({ item }) {
         <button 
           onClick={handleOutOfStock}
           title="Stok Habis"
-          className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-red-100 hover:bg-red-200 text-red-600 rounded-xl transition-colors touch-auto"
+          className="w-12 h-12 shrink-0 flex items-center justify-center bg-red-100 hover:bg-red-200 text-red-600 rounded-xl transition-colors touch-auto"
         >
           <XOctagon size={20} />
         </button>
