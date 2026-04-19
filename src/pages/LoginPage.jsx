@@ -18,6 +18,7 @@ const VALID_CREDENTIALS = [
   { username: 'admin',        password: 'admin123',  name: 'Admin Utama',   role: 'Administrator' },
   { username: 'budi',         password: 'budi123',   name: 'Budi Santoso',  role: 'Kasir Shift Pagi' },
   { username: 'kasir',        password: 'kasir123',  name: 'Kasir Demo',    role: 'Kasir' },
+  { username: 'koki',         password: 'koki123',   name: 'Koki Dapur',    role: 'Dapur' },
 ];
 
 export default function LoginPage() {
@@ -59,6 +60,8 @@ export default function LoginPage() {
         
         if (user.role === 'Administrator') {
           navigate('/admin/dashboard');
+        } else if (user.role === 'Dapur') {
+          navigate('/dapur');
         } else {
           navigate('/kasir');
         }
