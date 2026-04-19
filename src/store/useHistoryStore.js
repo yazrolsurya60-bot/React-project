@@ -12,7 +12,7 @@ const useHistoryStore = create((set) => ({
         {
           ...order,
           date: new Date().toISOString(),
-          id: `ORD-${Date.now()}`,
+          id: order.id || `ORD-${Date.now()}`,
         },
         ...state.orders,
       ],
