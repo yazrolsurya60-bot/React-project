@@ -121,13 +121,13 @@ export default function OrderCard({ item }) {
           <button 
             onClick={handleNext}
             className={`flex-3 h-12 flex items-center justify-center text-white rounded-xl font-bold transition-colors touch-auto 
-              ${item.status === 'todo' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}`}
+              ${item.status === 'todo' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-black'}`}
           >
             {item.status === 'todo' ? 'Mulai Masak' : 'Selesai Dimasak'}
             <ArrowRight size={20} className="ml-2" />
           </button>
         ) : (
-          <div className="flex-3 h-12 flex items-center justify-center bg-green-100 text-green-700 rounded-xl font-black gap-2">
+          <div className="flex-3 h-12 flex items-center justify-center bg-gray-900 text-white rounded-xl font-black gap-2">
             <CheckCircle2 size={24} />
             Siap Diantar
           </div>
