@@ -8,10 +8,12 @@ import OrderSummary from './OrderSummary';
 import CheckoutModal from './CheckoutModal';
 import useCartStore from '../../store/useCartStore';
 import useHistoryStore from '../../store/useHistoryStore';
+import useKitchenStore from '../../store/useKitchenStore';
 
 export default function CartPanel() {
   const { items, clearCart, discount } = useCartStore();
   const { addOrder } = useHistoryStore();
+  const { addItemsToKitchen } = useKitchenStore();
   const [showCheckout, setShowCheckout] = useState(false);
 
   // Computed
@@ -23,15 +25,27 @@ export default function CartPanel() {
   const isEmpty = items.length === 0;
 
   const handleConfirmCheckout = () => {
-    // Save order strictly to history before clearing cart
-    addOrder({
+    const orderId = `ORD-${Date.now()}`;
+    const orderData = {
+      id: orderId,
       items: [...items],
       subtotal,
       tax,
       discount,
       total,
       totalQty
-    });
+    };
+
+    // Save order strictly to history
+    addOrder(orderData);
+
+    // Kirim item makanan ke dapur
+    const foodCategories = ['makanan', 'snack', 'dessert'];
+    const foodItems = items.filter(i => foodCategories.includes(i.category));
+    if (foodItems.length > 0) {
+      addItemsToKitchen(foodItems, orderId);
+    }
+
     // Clear cart after checkout
     clearCart();
   };
