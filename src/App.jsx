@@ -11,6 +11,7 @@ import MenuManagementPage from './pages/admin/MenuManagementPage';
 import InventoryPage from './pages/admin/InventoryPage';
 import ReportsPage from './pages/admin/ReportsPage';
 import SettingsPage from './pages/admin/SettingsPage';
+import KitchenPage from './pages/KitchenPage';
 
 // ── Guard: Hanya bisa diakses jika sudah login ─────────────
 function PrivateRoute({ element }) {
@@ -33,6 +34,9 @@ function App() {
         
         {/* ── Halaman Riwayat (terproteksi) ── */}
         <Route path="/riwayat" element={<PrivateRoute element={<RiwayatPage />} />} />
+
+        {/* ── Halaman Dapur (terproteksi) ── */}
+        <Route path="/dapur" element={<PrivateRoute element={<KitchenPage />} />} />
 
         {/* ── Admin Dashboard (terproteksi) dengan Layout ── */}
         <Route path="/admin" element={<PrivateRoute element={<AdminLayout />} />}>
