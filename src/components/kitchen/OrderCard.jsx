@@ -82,7 +82,9 @@ export default function OrderCard({ item }) {
       {/* ── Info Item ── */}
       <div className="mb-4">
         <h3 className="text-xl font-bold text-gray-900 leading-tight mb-1">{item.name}</h3>
-        <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Order {item.orderReference.slice(-6)}</p>
+        <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">
+          Order {item.orderReference ? item.orderReference.slice(-6) : ''} &bull; {item.customerName || 'Tanpa Nama'}
+        </p>
         
         {/* Kustomisasi */}
         {item.customization && (
