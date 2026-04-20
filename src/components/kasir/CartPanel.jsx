@@ -11,7 +11,7 @@ import useHistoryStore from '../../store/useHistoryStore';
 import useKitchenStore from '../../store/useKitchenStore';
 
 export default function CartPanel() {
-  const { items, clearCart, discount } = useCartStore();
+  const { items, clearCart, discount, customerName, setCustomerName } = useCartStore();
   const { addOrder } = useHistoryStore();
   const { addItemsToKitchen } = useKitchenStore();
   const [showCheckout, setShowCheckout] = useState(false);
@@ -28,6 +28,7 @@ export default function CartPanel() {
     const orderId = `ORD-${Date.now()}`;
     const orderData = {
       id: orderId,
+      customerName,
       items: [...items],
       subtotal,
       tax,
@@ -43,7 +44,7 @@ export default function CartPanel() {
     const activeCategories = ['makanan', 'snack', 'dessert', 'kopi', 'non-kopi'];
     const kitchenItems = items.filter(i => activeCategories.includes(i.category));
     if (kitchenItems.length > 0) {
-      addItemsToKitchen(kitchenItems, orderId);
+      addItemsToKitchen(kitchenItems, orderId, customerName);
     }
 
     // Clear cart after checkout
@@ -103,6 +104,17 @@ export default function CartPanel() {
         {/* ── Order Summary + CTA ── */}
         {!isEmpty && (
           <div className="px-5 py-4 border-t border-gray-100 space-y-4 shrink-0 bg-gray-50/60">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Nama Pelanggan / Meja</label>
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Contoh: Budi / Meja 4"
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+              />
+            </div>
+
             <OrderSummary
               subtotal={subtotal}
               tax={tax}
