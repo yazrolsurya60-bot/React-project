@@ -68,4 +68,13 @@ const useKitchenStore = create(
   )
 );
 
+// Sinkronisasi antar tab
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'kitchen-storage') {
+      useKitchenStore.persist.rehydrate();
+    }
+  });
+}
+
 export default useKitchenStore;
