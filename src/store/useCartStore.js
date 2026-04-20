@@ -8,6 +8,7 @@ const useCartStore = create((set, get) => ({
   items: [],          // Array item di cart
   discount: 0,        // Diskon dalam rupiah
   voucherCode: '',    // Kode voucher yang diaplikasikan
+  customerName: '',   // Nama pelanggan
 
   // ── Computed (via getter) ──────────────────────────────────
   get subtotal() {
@@ -24,6 +25,8 @@ const useCartStore = create((set, get) => ({
   },
 
   // ── Actions ────────────────────────────────────────────────
+
+  setCustomerName: (name) => set({ customerName: name }),
 
   /**
    * Tambah item ke cart.
@@ -92,7 +95,7 @@ const useCartStore = create((set, get) => ({
 
   /** Kosongkan seluruh cart */
   clearCart: () => {
-    set({ items: [], discount: 0, voucherCode: '' });
+    set({ items: [], discount: 0, voucherCode: '', customerName: '' });
   },
 
   /** Terapkan voucher / diskon */
