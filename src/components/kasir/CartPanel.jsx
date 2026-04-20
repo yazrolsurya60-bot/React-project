@@ -39,11 +39,11 @@ export default function CartPanel() {
     // Save order strictly to history
     addOrder(orderData);
 
-    // Kirim item makanan ke dapur
-    const foodCategories = ['makanan', 'snack', 'dessert'];
-    const foodItems = items.filter(i => foodCategories.includes(i.category));
-    if (foodItems.length > 0) {
-      addItemsToKitchen(foodItems, orderId);
+    // Kirim item pesanan ke dapur (semua kategori, termasuk minuman)
+    const activeCategories = ['makanan', 'snack', 'dessert', 'kopi', 'non-kopi'];
+    const kitchenItems = items.filter(i => activeCategories.includes(i.category));
+    if (kitchenItems.length > 0) {
+      addItemsToKitchen(kitchenItems, orderId);
     }
 
     // Clear cart after checkout
