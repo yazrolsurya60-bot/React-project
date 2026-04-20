@@ -16,12 +16,13 @@ const useKitchenStore = create(
       /**
        * Menerima item baru dari Kasir (difilter hanya makanan/snack/dessert)
        */
-      addItemsToKitchen: (items, orderId) => {
+      addItemsToKitchen: (items, orderId, customerName) => {
         set((state) => {
           const newKitchenItems = items.map((item) => ({
             ...item,                  // membawa informasi cartItem
             kitchenItemId: `KITCHEN-${orderId}-${item.cartId}-${Date.now()}`,
             orderReference: orderId,
+            customerName: customerName || 'Tanpa Nama',
             status: 'todo',           // 'todo', 'progress', 'done'
             startTime: Date.now(),    // untuk SLA stopwatch
             isWarning: false,         // merah jika SLA > 15 menit
