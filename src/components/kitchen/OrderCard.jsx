@@ -12,7 +12,7 @@ import useMenuStore from '../../store/useMenuStore';
 const SLA_LIMIT_MS = 15 * 60 * 1000;
 
 export default function OrderCard({ item }) {
-  const { updateItemStatus, cancelItem } = useKitchenStore();
+  const { updateItemStatus, cancelItem } = 
   const { editMenu } = useMenuStore();
   
   const [elapsed, setElapsed] = useState(() => Date.now() - item.startTime);
