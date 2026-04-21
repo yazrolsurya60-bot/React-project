@@ -2,10 +2,17 @@
 // HEADER KITCHEN
 // ============================================================
 import React, { useState, useEffect } from 'react';
-import { ChefHat, Clock } from 'lucide-react';
+import { ChefHat, Clock, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function HeaderKitchen() {
   const [time, setTime] = useState(new Date());
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('pos_user');
+    navigate('/login', { replace: true });
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -24,11 +31,22 @@ export default function HeaderKitchen() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-xl text-gray-700 font-bold">
-        <Clock size={18} />
-        <span>
-          {time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-        </span>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-xl text-gray-700 font-bold">
+          <Clock size={18} />
+          <span>
+            {time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="w-10 h-10 rounded-xl bg-gray-800 hover:bg-red-600 flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200"
+          title="Keluar"
+        >
+          <LogOut size={18} />
+        </button>
       </div>
     </header>
   );
