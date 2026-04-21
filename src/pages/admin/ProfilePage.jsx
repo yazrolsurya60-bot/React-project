@@ -27,8 +27,13 @@ export default function ProfilePage() {
           <div className="relative -mt-20 mb-6 flex justify-between items-end">
             <div className="w-40 h-40 bg-white p-2 rounded-3xl shadow-xl shadow-gray-200/50 rotate-3 transition-transform hover:rotate-0 duration-300">
               <div className="w-full h-full bg-gray-900 rounded-2xl flex items-center justify-center relative overflow-hidden">
-                <User size={64} className="text-gray-600 relative z-10" />
-                <div className="absolute inset-0 bg-linear-to-t from-gray-950/80 to-transparent z-0"></div>
+                <img 
+                  src="/profile.jpg" 
+                  alt="Profile Yazrol" 
+                  className="w-full h-full object-cover relative z-10"
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'src/assets/foto_pertama.jpeg'; }}
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-gray-950/80 to-transparent z-0 pointer-events-none"></div>
                 <div className="absolute bottom-3 left-0 right-0 text-center z-10">
                   <span className="bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
                     Developer
