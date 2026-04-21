@@ -3,11 +3,12 @@ import { Plus, Edit2, Trash2, Search, X, Shield, User } from 'lucide-react';
 
 export default function UsersPage() {
   const [users, setUsers] = useState([
-    { id: 1, name: 'Budi Santoso', username: 'budi', role: 'Kasir Shift Pagi' },
-    { id: 2, name: 'Kasir Demo', username: 'kasir', role: 'Kasir' },
+    { id: 1, name: 'Budi Santoso', username: 'budi', password: 'password123', role: 'Kasir Shift Pagi' },
+    { id: 2, name: 'Kasir Demo', username: 'kasir', password: 'kasirdemo', role: 'Kasir' },
   ]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   // State form
   const [formData, setFormData] = useState({
@@ -33,11 +34,13 @@ export default function UsersPage() {
       password: '',
       role: 'Kasir',
     });
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (item) => {
-    setFormData({ ...item, password: '' }); // Don't show password on edit, maybe require new one
+    setFormData({ ...item }); 
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
@@ -107,6 +110,7 @@ export default function UsersPage() {
               <tr className="bg-black text-white text-sm">
                 <th className="px-6 py-4 font-bold">Nama Staf</th>
                 <th className="px-6 py-4 font-bold">Username</th>
+                <th className="px-6 py-4 font-bold">Password</th>
                 <th className="px-6 py-4 font-bold">Role</th>
                 <th className="px-6 py-4 font-bold text-right">Aksi</th>
               </tr>
@@ -124,6 +128,9 @@ export default function UsersPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-gray-600 font-medium">@{item.username}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-gray-600 font-mono text-sm tracking-wide">{item.password || '••••••••'}</span>
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-bold tracking-wide flex items-center gap-1.5 w-max">
@@ -146,7 +153,7 @@ export default function UsersPage() {
               
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500 text-sm">
+                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500 text-sm">
                     Tidak ada kasir yang ditemukan.
                   </td>
                 </tr>
@@ -196,14 +203,23 @@ export default function UsersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Password {formData.id && '(Kosongkan jika tidak ingin mengubah)'}</label>
-                  <input 
-                    type="password" 
-                    value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors" 
-                    placeholder="••••••••" 
-                  />
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Password</label>
+                  <div className="relative">
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-24 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors" 
+                      placeholder="Masukkan password" 
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-500 hover:text-black uppercase tracking-widest bg-gray-200/50 hover:bg-gray-200 px-2 py-1 rounded-md transition-colors"
+                    >
+                      {showPassword ? "Sembunyikan" : "Tampilkan"}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1">Role / Jabatan</label>
