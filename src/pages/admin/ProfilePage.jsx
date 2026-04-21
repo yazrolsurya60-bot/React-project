@@ -50,9 +50,9 @@ export default function ProfilePage() {
             {/* Main Info */}
             <div className="md:col-span-2 space-y-2">
               <h2 className="text-4xl font-black text-gray-900 tracking-tight leading-none">
-                Nama Pengembang
+                Yazrol Surya
               </h2>
-              <p className="text-xl text-red-600 font-bold tracking-wide">Mahasiswa / Developer</p>
+              <p className="text-xl text-red-600 font-bold tracking-wide">Mahasiswa</p>
               
               <div className="pt-6">
                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Detail Informasi</h3>
@@ -66,7 +66,7 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">NIM</p>
-                      <p className="text-gray-900 font-bold text-lg">1234567890</p>
+                      <p className="text-gray-900 font-bold text-lg">3202402003</p>
                     </div>
                   </div>
 
@@ -77,7 +77,7 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Jurusan</p>
-                      <p className="text-gray-900 font-bold text-lg">Teknik Informatika</p>
+                      <p className="text-gray-900 font-bold text-lg">Manajemen Informatika</p>
                     </div>
                   </div>
 
@@ -88,7 +88,7 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Universitas/Kampus</p>
-                      <p className="text-gray-900 font-bold text-lg">Universitas Contoh Indonesia</p>
+                      <p className="text-gray-900 font-bold text-lg">Politeknik Negeri Sambas</p>
                     </div>
                   </div>
 
