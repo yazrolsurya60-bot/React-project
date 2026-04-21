@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Coffee, Package, FileText, Settings, LogOut, Bell, Search, Menu } from 'lucide-react';
+import { LayoutDashboard, Coffee, Package, FileText, Settings, LogOut, Bell, Search, Menu, Users, UserCircle } from 'lucide-react';
 import oakLogo from '../../assets/Oak_Coffe.png';
 
 export default function AdminLayout() {
@@ -16,7 +16,9 @@ export default function AdminLayout() {
     { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Menu', path: '/admin/menu', icon: Coffee },
     { name: 'Inventori', path: '/admin/inventory', icon: Package },
+    { name: 'Kasir', path: '/admin/users', icon: Users },
     { name: 'Laporan', path: '/admin/reports', icon: FileText },
+    { name: 'Profil', path: '/admin/profile', icon: UserCircle },
     { name: 'Pengaturan', path: '/admin/settings', icon: Settings },
   ];
 
@@ -37,8 +39,8 @@ export default function AdminLayout() {
       </div>
 
       {/* ── Sidebar (30% Black Theme) ── */}
-      <aside className={`${isSidebarOpen ? 'block' : 'hidden'} md:block w-64 bg-black text-white flex-shrink-0 flex flex-col h-full absolute md:relative z-20`}>
-        <div className="p-6 flex items-center justify-center border-b border-gray-800 hidden md:flex shrink-0">
+      <aside className={`${isSidebarOpen ? 'block' : 'hidden'} md:block w-64 bg-black text-white shrink-0 flex flex-col h-full absolute md:relative z-20`}>
+        <div className="p-6 flex-hidden items-center justify-center border-b border-gray-800 md:flex shrink-0">
           <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-900/50">
             <img src={oakLogo} alt="Oak Coffee" className="w-full h-full object-cover rounded-xl" />
           </div>
