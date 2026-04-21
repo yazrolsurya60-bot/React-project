@@ -11,6 +11,8 @@ import MenuManagementPage from './pages/admin/MenuManagementPage';
 import InventoryPage from './pages/admin/InventoryPage';
 import ReportsPage from './pages/admin/ReportsPage';
 import SettingsPage from './pages/admin/SettingsPage';
+import UsersPage from './pages/admin/UsersPage';
+import ProfilePage from './pages/admin/ProfilePage';
 import KitchenPage from './pages/KitchenPage';
 
 // ── Guard: Hanya bisa diakses jika sudah login ─────────────
@@ -46,6 +48,8 @@ function App() {
           <Route path="inventory" element={<InventoryPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
 
         {/* ── 404 fallback ── */}
