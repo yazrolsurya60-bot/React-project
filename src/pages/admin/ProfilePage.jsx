@@ -28,10 +28,10 @@ export default function ProfilePage() {
             <div className="w-40 h-40 bg-white p-2 rounded-3xl shadow-xl shadow-gray-200/50 rotate-3 transition-transform hover:rotate-0 duration-300">
               <div className="w-full h-full bg-gray-900 rounded-2xl flex items-center justify-center relative overflow-hidden">
                 <img 
-                  src="/profile.jpg" 
+                  src="public/foto_pertama.jpeg" 
                   alt="Profile Yazrol" 
                   className="w-full h-full object-cover relative z-10"
-                  onError={(e) => { e.target.onerror = null; e.target.src = 'src/assets/foto_pertama.jpeg'; }}
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=Yazrol+Surya&size=200&background=random'; }}
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-gray-950/80 to-transparent z-0 pointer-events-none"></div>
                 <div className="absolute bottom-3 left-0 right-0 text-center z-10">
