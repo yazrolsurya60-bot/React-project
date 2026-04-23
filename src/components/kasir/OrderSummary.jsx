@@ -6,7 +6,7 @@ import { Tag, X } from 'lucide-react';
 import { formatRupiah } from '../../data/menuData';
 import useCartStore from '../../store/useCartStore';
 
-export default function OrderSummary({ subtotal, tax, discount, total }) {
+export default function OrderSummary({ subtotal, discount, total }) {
   const { applyVoucher, removeVoucher, voucherCode } = useCartStore();
   const [voucherInput, setVoucherInput] = useState('');
   const [voucherError, setVoucherError] = useState('');
@@ -30,7 +30,6 @@ export default function OrderSummary({ subtotal, tax, discount, total }) {
 
   const rows = [
     { label: 'Subtotal', value: subtotal },
-    { label: 'Pajak (PB1 10%)', value: tax },
   ];
 
   return (
