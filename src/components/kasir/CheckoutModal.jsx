@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { X, Printer, CheckCircle, CreditCard, Banknote } from 'lucide-react';
 import { formatRupiah } from '../../data/menuData';
 
-export default function CheckoutModal({ items, subtotal, tax, discount, total, onConfirm, onClose }) {
+export default function CheckoutModal({ items, subtotal, discount, total, onConfirm, onClose }) {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [cashInput, setCashInput] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -89,10 +89,6 @@ export default function CheckoutModal({ items, subtotal, tax, discount, total, o
             <div className="flex justify-between text-sm text-gray-600">
               <span>Subtotal</span>
               <span className="font-medium">{formatRupiah(subtotal)}</span>
-            </div>
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Pajak (PB1 10%)</span>
-              <span className="font-medium">{formatRupiah(tax)}</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-sm text-emerald-600">
