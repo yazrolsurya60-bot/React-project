@@ -36,7 +36,7 @@ const useCartStore = create((set, get) => ({
       const customKey = customization ? JSON.stringify(customization) : 'default';
 
       const existing = state.items.find(
-        (i) => i.id === product.id && i.customKey === 
+        (i) => i.id === product.id && i.customKey === customKey
       );
 
       if (existing) {
