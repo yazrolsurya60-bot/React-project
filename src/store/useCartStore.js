@@ -14,11 +14,8 @@ const useCartStore = create((set, get) => ({
   get subtotal() {
     return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   },
-  get tax() {
-    return Math.round(get().subtotal * 0.1);
-  },
   get total() {
-    return get().subtotal + get().tax - get().discount;
+    return get().subtotal - get().discount;
   },
   get totalItems() {
     return get().items.reduce((sum, item) => sum + item.quantity, 0);
