@@ -18,8 +18,7 @@ export default function CartPanel() {
 
   // Computed
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const tax      = Math.round(subtotal * 0.1);
-  const total    = subtotal + tax - discount;
+  const total    = subtotal - discount;
   const totalQty = items.reduce((s, i) => s + i.quantity, 0);
 
   const isEmpty = items.length === 0;
@@ -31,7 +30,6 @@ export default function CartPanel() {
       customerName,
       items: [...items],
       subtotal,
-      tax,
       discount,
       total,
       totalQty
@@ -117,7 +115,6 @@ export default function CartPanel() {
 
             <OrderSummary
               subtotal={subtotal}
-              tax={tax}
               discount={discount}
               total={total}
             />
@@ -146,7 +143,6 @@ export default function CartPanel() {
         <CheckoutModal
           items={items}
           subtotal={subtotal}
-          tax={tax}
           discount={discount}
           total={total}
           onConfirm={handleConfirmCheckout}
