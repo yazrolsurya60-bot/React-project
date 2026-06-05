@@ -1,7 +1,7 @@
 // ============================================================
 // LOGIN PAGE - Halaman autentikasi kasir CaféPOS
 // ============================================================
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User,
@@ -12,23 +12,22 @@ import {
   ArrowRight,
   Coffee,
 } from 'lucide-react';
-
-// ── Kredensial dummy (ganti dengan API nanti) ──────────────
-const VALID_CREDENTIALS = [
-  { username: 'admin',        password: 'admin123',  name: 'Admin Utama',   role: 'Administrator' },
-  { username: 'budi',         password: 'budi123',   name: 'Budi Santoso',  role: 'Kasir Shift Pagi' },
-  { username: 'kasir',        password: 'kasir123',  name: 'Kasir Demo',    role: 'Kasir' },
-  { username: 'koki',         password: 'koki123',   name: 'Koki Dapur',    role: 'Dapur' },
-];
+import useUserStore from '../store/useUserStore';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { users, fetchUsers } = useUserStore();
 
   const [form, setForm]           = useState({ username: '', password: '' });
   const [showPass, setShowPass]   = useState(false);
   const [error, setError]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [focused, setFocused]     = useState('');
+
+  // Fetch users on mount (if in database mode)
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   // ── Handler input ──────────────────────────────────────────
   const handleChange = (field) => (e) => {
@@ -50,7 +49,7 @@ export default function LoginPage() {
 
     // Simulasi delay autentikasi
     setTimeout(() => {
-      const user = VALID_CREDENTIALS.find(
+      const user = users.find(
         (u) => u.username === form.username && u.password === form.password
       );
 
