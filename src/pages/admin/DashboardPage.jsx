@@ -1,24 +1,99 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, PackageX, TrendingUp, DollarSign, ShoppingBag } from 'lucide-react';
+import { ArrowUpRight, PackageX, TrendingUp, DollarSign, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useInventoryStore from '../../store/useInventoryStore';
+import useHistoryStore from '../../store/useHistoryStore';
 import RestockModal from '../../components/admin/RestockModal';
-
-const mockChartData = [
-  { name: 'Sen', total: 1200000 },
-  { name: 'Sel', total: 2100000 },
-  { name: 'Rab', total: 1800000 },
-  { name: 'Kam', total: 2400000 },
-  { name: 'Jum', total: 3200000 },
-  { name: 'Sab', total: 4500000 },
-  { name: 'Min', total: 5100000 },
-];
+import { apiRequest, USE_DATABASE } from '../../services/apiService';
 
 export default function DashboardPage() {
   const [selectedItem, setSelectedItem] = useState(null);
-  const { inventory, addStock } = useInventoryStore();
+  const { inventory, addStock, fetchInventory } = useInventoryStore();
+  const { orders, fetchOrders } = useHistoryStore();
+  const [apiStats, setApiStats] = useState(null);
+
+  useEffect(() => {
+    fetchInventory();
+    if (USE_DATABASE) {
+      apiRequest('orders.php?action=get_stats')
+        .then(res => {
+          if (res && res.success) {
+            setApiStats(res.stats);
+          }
+        })
+        .catch(err => {
+          console.error("Gagal memuat statistik database:", err);
+        });
+    } else {
+      fetchOrders();
+    }
+  }, [fetchInventory, fetchOrders]);
+
   const lowStock = inventory.filter(item => item.current <= item.limit);
+
+  // ── Hitung Statistik Lokal (Offline Fallback) ──
+  const localStats = useMemo(() => {
+    if (USE_DATABASE && apiStats) return null;
+
+    const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+    const totalTransactions = orders.length;
+
+    // Hitung menu terlaris
+    const productCounts = {};
+    orders.forEach(order => {
+      if (Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          productCounts[item.name] = (productCounts[item.name] || 0) + item.quantity;
+        });
+      }
+    });
+
+    let bestMenu = 'Belum ada';
+    let bestQty = 0;
+    Object.entries(productCounts).forEach(([name, qty]) => {
+      if (qty > bestQty) {
+        bestMenu = name;
+        bestQty = qty;
+      }
+    });
+
+    // Hitung chart data 7 hari terakhir
+    const daysShort = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const chartData = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dayName = daysShort[d.getDay()];
+      const dateStr = d.toDateString();
+
+      const dailyTotal = orders
+        .filter(o => new Date(o.date).toDateString() === dateStr)
+        .reduce((sum, o) => sum + o.total, 0);
+
+      chartData.push({
+        name: dayName,
+        total: dailyTotal
+      });
+    }
+
+    return {
+      total_revenue: totalRevenue,
+      total_transactions: totalTransactions,
+      bestseller: {
+        name: bestMenu,
+        sold: bestQty
+      },
+      chart_data: chartData
+    };
+  }, [orders, apiStats]);
+
+  const activeStats = USE_DATABASE && apiStats ? apiStats : (localStats || {
+    total_revenue: 0,
+    total_transactions: 0,
+    bestseller: { name: 'Belum ada', sold: 0 },
+    chart_data: []
+  });
 
   return (
     <div className="space-y-6">
@@ -35,10 +110,12 @@ export default function DashboardPage() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm font-medium mb-1">Total Pendapatan</p>
-            <h3 className="text-3xl font-black text-gray-900">Rp 5.100.000</h3>
+            <h3 className="text-3xl font-black text-gray-900">
+              Rp {activeStats.total_revenue.toLocaleString('id-ID')}
+            </h3>
             <div className="flex items-center gap-1 mt-2 text-green-600 text-sm font-semibold">
               <ArrowUpRight size={16} />
-              <span>+12.5% dari kemarin</span>
+              <span>Dihitung dinamis</span>
             </div>
           </div>
           <div className="p-3 bg-black text-white rounded-xl">
@@ -50,10 +127,12 @@ export default function DashboardPage() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm font-medium mb-1">Total Transaksi</p>
-            <h3 className="text-3xl font-black text-gray-900">142</h3>
+            <h3 className="text-3xl font-black text-gray-900">
+              {activeStats.total_transactions}
+            </h3>
             <div className="flex items-center gap-1 mt-2 text-green-600 text-sm font-semibold">
               <ArrowUpRight size={16} />
-              <span>+5% dari kemarin</span>
+              <span>Semua pesanan</span>
             </div>
           </div>
           <div className="p-3 bg-black text-white rounded-xl">
@@ -65,9 +144,11 @@ export default function DashboardPage() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start justify-between">
           <div>
             <p className="text-gray-500 text-sm font-medium mb-1">Menu Terlaris</p>
-            <h3 className="text-xl font-black text-gray-900 break-word leading-tight mt-1">Kopi Susu Gula Aren</h3>
+            <h3 className="text-xl font-black text-gray-900 break-word leading-tight mt-1">
+              {activeStats.bestseller.name}
+            </h3>
             <div className="flex items-center gap-1 mt-2 text-gray-500 text-sm font-medium">
-              <span>85 cup terjual</span>
+              <span>{activeStats.bestseller.sold} item terjual</span>
             </div>
           </div>
           <div className="p-3 bg-red-600 text-white rounded-xl">
@@ -85,7 +166,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex-1 min-h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={mockChartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+              <LineChart data={activeStats.chart_data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis 
                   dataKey="name" 
@@ -98,7 +179,7 @@ export default function DashboardPage() {
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fill: '#6B7280', fontSize: 12 }}
-                  tickFormatter={(val) => `Rp${val / 1000000}M`}
+                  tickFormatter={(val) => `Rp ${val.toLocaleString('id-ID')}`}
                 />
                 <Tooltip 
                   cursor={{ stroke: '#f3f4f6', strokeWidth: 2 }}
