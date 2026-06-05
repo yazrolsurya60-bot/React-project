@@ -9,11 +9,16 @@ import CheckoutModal from './CheckoutModal';
 import useCartStore from '../../store/useCartStore';
 import useHistoryStore from '../../store/useHistoryStore';
 import useKitchenStore from '../../store/useKitchenStore';
+import useInventoryStore from '../../store/useInventoryStore';
+import useMenuStore from '../../store/useMenuStore';
+import { USE_DATABASE } from '../../services/apiService';
 
 export default function CartPanel() {
-  const { items, clearCart, discount, customerName, setCustomerName } = useCartStore();
+  const { items, clearCart, discount, customerName, setCustomerName, voucherCode } = useCartStore();
   const { addOrder } = useHistoryStore();
   const { addItemsToKitchen } = useKitchenStore();
+  const { inventory, updateStock } = useInventoryStore();
+  const { menus, editMenu, recipes } = useMenuStore();
   const [showCheckout, setShowCheckout] = useState(false);
 
   // Computed
@@ -23,7 +28,7 @@ export default function CartPanel() {
 
   const isEmpty = items.length === 0;
 
-  const handleConfirmCheckout = () => {
+  const handleConfirmCheckout = async () => {
     const orderId = `ORD-${Date.now()}`;
     const orderData = {
       id: orderId,
@@ -31,12 +36,46 @@ export default function CartPanel() {
       items: [...items],
       subtotal,
       discount,
+      voucherCode,
       total,
       totalQty
     };
 
-    // Save order strictly to history
-    addOrder(orderData);
+    // Save order (API handles stock deduction, Local fallback handles it manually below)
+    await addOrder(orderData);
+
+    if (!USE_DATABASE) {
+      // ── MOCK/LOCAL STOCK DEDUCTION ──
+      items.forEach(item => {
+        const recipe = recipes[item.id];
+        if (recipe && recipe.length > 0) {
+          recipe.forEach(ing => {
+            const currentItem = inventory.find(i => i.id === ing.inventory_id);
+            if (currentItem) {
+              const deductAmount = ing.quantity_needed * item.quantity;
+              updateStock(ing.inventory_id, Math.max(0, currentItem.current - deductAmount));
+            }
+          });
+        }
+      });
+
+      // ── AUTO-DISABLE MENUS IF INGREDIENTS RUN OUT ──
+      setTimeout(() => {
+        const updatedInventory = useInventoryStore.getState().inventory;
+        menus.forEach(menu => {
+          const recipe = recipes[menu.id];
+          if (recipe && recipe.length > 0) {
+            const isOutOfStock = recipe.some(ing => {
+              const invItem = updatedInventory.find(i => i.id === ing.inventory_id);
+              return invItem ? invItem.current < ing.quantity_needed : false;
+            });
+            if (isOutOfStock && menu.isAvailable) {
+              editMenu(menu.id, { isAvailable: false });
+            }
+          }
+        });
+      }, 100);
+    }
 
     // Kirim item pesanan ke dapur (semua kategori, termasuk minuman)
     const activeCategories = ['makanan', 'snack', 'dessert', 'kopi', 'non-kopi'];
