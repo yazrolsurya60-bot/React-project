@@ -1,11 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, X, Shield, User } from 'lucide-react';
+import useUserStore from '../../store/useUserStore';
 
 export default function UsersPage() {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Budi Santoso', username: 'budi', password: 'password123', role: 'Kasir Shift Pagi' },
-    { id: 2, name: 'Kasir Demo', username: 'kasir', password: 'kasirdemo', role: 'Kasir' },
-  ]);
+  const { users, fetchUsers, addUser, editUser, deleteUser } = useUserStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +16,11 @@ export default function UsersPage() {
     password: '',
     role: 'Kasir',
   });
+
+  // Fetch users on page load
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   // Filtered
   const filteredUsers = users.filter(u => 
@@ -46,7 +49,7 @@ export default function UsersPage() {
 
   const handleDelete = (id) => {
     if (window.confirm('Yakin ingin menghapus akun kasir ini?')) {
-      setUsers(users.filter(u => u.id !== id));
+      deleteUser(id);
     }
   };
 
@@ -58,14 +61,14 @@ export default function UsersPage() {
 
     if (formData.id) {
       // Edit
-      setUsers(users.map(u => u.id === formData.id ? { ...formData, id: u.id } : u));
+      editUser(formData.id, formData);
     } else {
       // Add
       if (!formData.password) {
         alert("Password wajib diisi untuk akun baru");
         return;
       }
-      setUsers([...users, { ...formData, id: Date.now() }]);
+      addUser(formData);
     }
     
     setIsModalOpen(false);
