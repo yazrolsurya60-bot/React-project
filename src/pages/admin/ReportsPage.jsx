@@ -1,15 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Download, FileText, Search, Eye } from 'lucide-react';
-
-const mockTransactions = [];
+import useHistoryStore from '../../store/useHistoryStore';
+import { formatRupiah } from '../../data/menuData';
 
 export default function ReportsPage() {
+  const { orders, fetchOrders } = useHistoryStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-  const filteredTransactions = mockTransactions.filter(trx => 
-    trx.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    trx.cashier.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  // Filtered transactions
+  const filteredTransactions = orders.filter(trx => {
+    // Search filter
+    const matchesSearch = 
+      trx.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (trx.cashierName && trx.cashierName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (trx.customerName && trx.customerName.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Date range filter
+    let matchesDate = true;
+    if (startDate || endDate) {
+      const trxDate = new Date(trx.date);
+      // Reset hours to compare dates only
+      trxDate.setHours(0, 0, 0, 0);
+
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        if (trxDate < start) matchesDate = false;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(0, 0, 0, 0);
+        if (trxDate > end) matchesDate = false;
+      }
+    }
+
+    return matchesSearch && matchesDate;
+  });
 
   return (
     <div className="space-y-6">
@@ -50,12 +82,22 @@ export default function ReportsPage() {
         <div className="flex items-center gap-2 w-full md:w-auto">
           <div className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
             <Calendar size={16} className="text-gray-400 mr-2" />
-            <input type="date" className="bg-transparent border-none outline-none text-sm text-gray-700" />
+            <input 
+              type="date" 
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="bg-transparent border-none outline-none text-sm text-gray-700" 
+            />
           </div>
           <span className="text-gray-400 text-sm font-medium">sd</span>
           <div className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
             <Calendar size={16} className="text-gray-400 mr-2" />
-            <input type="date" className="bg-transparent border-none outline-none text-sm text-gray-700" />
+            <input 
+              type="date" 
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="bg-transparent border-none outline-none text-sm text-gray-700" 
+            />
           </div>
         </div>
       </div>
@@ -68,7 +110,7 @@ export default function ReportsPage() {
               <tr className="bg-black text-white text-sm">
                 <th className="px-6 py-4 font-bold">ID Transaksi</th>
                 <th className="px-6 py-4 font-bold">Waktu</th>
-                <th className="px-6 py-4 font-bold">Kasir</th>
+                <th className="px-6 py-4 font-bold">Kasir / Pelanggan</th>
                 <th className="px-6 py-4 font-bold">Total Item</th>
                 <th className="px-6 py-4 font-bold">Total Harga</th>
                 <th className="px-6 py-4 font-bold text-right">Detail</th>
@@ -81,19 +123,24 @@ export default function ReportsPage() {
                     <span className="font-bold text-gray-900">{trx.id}</span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500 font-medium">
-                    {trx.date}
+                    {new Date(trx.date).toLocaleDateString('id-ID', {
+                      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                    })}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 font-semibold">
-                    {trx.cashier}
+                    {trx.cashierName || 'Kasir'} <span className="text-gray-400 font-normal">({trx.customerName || 'Tanpa Nama'})</span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500 font-medium">
-                    {trx.items} Item
+                    {trx.totalQty} Item
                   </td>
-                  <td className="px-6 py-4 font-bold text-gray-900">
-                    Rp {trx.total.toLocaleString('id-ID')}
+                  <td className="px-6 py-4 font-bold text-red-600">
+                    {formatRupiah(trx.total)}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-black text-gray-600 hover:text-white rounded-lg text-xs font-bold transition-colors border border-gray-200 hover:border-black">
+                    <button 
+                      onClick={() => alert(`Detail Items:\n` + trx.items.map(i => `- ${i.name} (${i.quantity}x)`).join('\n'))}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-black text-gray-600 hover:text-white rounded-lg text-xs font-bold transition-colors border border-gray-200 hover:border-black"
+                    >
                       <Eye size={14} /> Lihat
                     </button>
                   </td>
