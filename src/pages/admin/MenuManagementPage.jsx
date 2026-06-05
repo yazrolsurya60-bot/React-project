@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, X } from 'lucide-react';
 import useMenuStore from '../../store/useMenuStore';
+import useInventoryStore from '../../store/useInventoryStore';
+import { USE_DATABASE } from '../../services/apiService';
 
 export default function MenuManagementPage() {
-  const { menus, addMenu, editMenu, deleteMenu } = useMenuStore();
+  const { menus, recipes, addMenu, editMenu, deleteMenu, fetchMenus, getRecipesForMenu, saveRecipe } = useMenuStore();
+  const { inventory, fetchInventory } = useInventoryStore();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('umum'); // umum vs resep
+  const [recipeItems, setRecipeItems] = useState([]);  // List of { inventory_id, quantity_needed }
   
   // State form
   const [formData, setFormData] = useState({
@@ -15,8 +20,26 @@ export default function MenuManagementPage() {
     category: 'kopi',
     price: 0,
     description: '',
-    image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&q=80', // Default mock image
+    image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&q=80',
   });
+
+  // Fetch menus and inventory on load
+  useEffect(() => {
+    fetchMenus();
+    fetchInventory();
+  }, [fetchMenus, fetchInventory]);
+
+  // Load recipe when editing menu and switching to 'resep' tab
+  useEffect(() => {
+    if (isModalOpen && formData.id && activeTab === 'resep') {
+      getRecipesForMenu(formData.id).then((res) => {
+        setRecipeItems(res.map(r => ({
+          inventory_id: parseInt(r.inventory_id),
+          quantity_needed: parseFloat(r.quantity_needed)
+        })));
+      });
+    }
+  }, [activeTab, isModalOpen, formData.id, getRecipesForMenu]);
 
   // Filtered
   const filteredMenus = menus.filter(m => 
@@ -33,11 +56,15 @@ export default function MenuManagementPage() {
       description: '',
       image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&q=80',
     });
+    setRecipeItems([]);
+    setActiveTab('umum');
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (item) => {
     setFormData(item);
+    setRecipeItems([]);
+    setActiveTab('umum');
     setIsModalOpen(true);
   };
 
@@ -47,7 +74,7 @@ export default function MenuManagementPage() {
     }
   };
 
-  const handleSaveMenu = () => {
+  const handleSaveMenu = async () => {
     if (!formData.name || !formData.price) {
       alert("Nama dan Harga wajib diisi");
       return;
@@ -56,15 +83,24 @@ export default function MenuManagementPage() {
     const payload = {
       ...formData,
       price: Number(formData.price),
-      isAvailable: true,
-      hasCustomizer: false,
-      tags: ['new'],
+      isAvailable: formData.isAvailable !== undefined ? formData.isAvailable : true,
+      hasCustomizer: formData.hasCustomizer !== undefined ? formData.hasCustomizer : false,
+      tags: formData.tags || ['new'],
     };
 
     if (formData.id) {
-      editMenu(formData.id, payload);
+      await editMenu(formData.id, payload);
+      await saveRecipe(formData.id, recipeItems);
     } else {
-      addMenu(payload);
+      // Offline fallback: determine next ID
+      const nextId = menus.length > 0 ? Math.max(...menus.map(m => m.id)) + 1 : 1;
+      await addMenu(payload);
+
+      // Resolve the ID for saving recipe
+      const targetId = USE_DATABASE 
+        ? (menus.find(m => m.name === formData.name)?.id || nextId) 
+        : nextId;
+      await saveRecipe(targetId, recipeItems);
     }
     
     setIsModalOpen(false);
@@ -132,8 +168,15 @@ export default function MenuManagementPage() {
                     Rp {item.price.toLocaleString('id-ID')}
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-sm font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-md border border-green-100">
-                      Mock (0 Bahan)
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-md border ${
+                      recipes[item.id] && recipes[item.id].length > 0
+                        ? 'text-green-700 bg-green-50 border-green-200' 
+                        : 'text-gray-500 bg-gray-50 border-gray-200'
+                    }`}>
+                      {recipes[item.id] && recipes[item.id].length > 0
+                        ? `${recipes[item.id].length} Bahan Baku`
+                        : 'Bebas Stok'
+                      }
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -243,11 +286,86 @@ export default function MenuManagementPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-start gap-3">
-                    <p className="text-xs text-blue-800">Tambahkan bahan baku yang akan dikurangi setiap kali menu ini terjual. (Mock UI)</p>
+                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <p className="text-xs text-blue-800 font-semibold leading-relaxed">
+                      Hubungkan menu ini dengan bahan baku di bawah. Stok bahan baku akan otomatis terpotong saat menu ini dibeli di kasir.
+                    </p>
                   </div>
-                  <button className="w-full py-2 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold text-sm mt-2 hover:bg-gray-50 hover:border-gray-400 transition-colors">
-                    + Tambah Bahan Baku (Segera Hadir)
+
+                  {recipeItems.length === 0 ? (
+                    <div className="text-center py-6 border border-dashed border-gray-200 rounded-xl">
+                      <p className="text-sm text-gray-400 font-medium">Belum ada bahan baku terikat untuk menu ini.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {recipeItems.map((item, index) => {
+                        const selectedInventoryItem = inventory.find(i => i.id === item.inventory_id);
+                        return (
+                          <div key={index} className="flex gap-3 items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
+                            <div className="flex-1">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Bahan Mentah</label>
+                              <select 
+                                value={item.inventory_id || ''} 
+                                onChange={(e) => {
+                                  const newRecipe = [...recipeItems];
+                                  newRecipe[index].inventory_id = parseInt(e.target.value);
+                                  setRecipeItems(newRecipe);
+                                }}
+                                className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-black"
+                              >
+                                <option value="">Pilih Bahan Baku...</option>
+                                {inventory.map(inv => (
+                                  <option key={inv.id} value={inv.id}>{inv.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            
+                            <div className="w-32">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Takaran / Porsi</label>
+                              <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2 py-1">
+                                <input 
+                                  type="number" 
+                                  step="any"
+                                  value={item.quantity_needed || ''}
+                                  onChange={(e) => {
+                                    const newRecipe = [...recipeItems];
+                                    newRecipe[index].quantity_needed = parseFloat(e.target.value) || 0;
+                                    setRecipeItems(newRecipe);
+                                  }}
+                                  placeholder="0"
+                                  className="w-full bg-transparent border-none outline-none text-sm text-gray-800"
+                                />
+                                <span className="text-xs text-gray-400 font-bold shrink-0">
+                                  {selectedInventoryItem ? selectedInventoryItem.unit : ''}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button 
+                              type="button" 
+                              onClick={() => {
+                                setRecipeItems(recipeItems.filter((_, i) => i !== index));
+                              }}
+                              className="self-end p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition-colors border border-red-100"
+                              title="Hapus bahan baku"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const firstId = inventory.length > 0 ? inventory[0].id : '';
+                      setRecipeItems([...recipeItems, { inventory_id: firstId, quantity_needed: 0 }]);
+                    }}
+                    className="w-full py-2.5 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:text-black font-bold text-sm hover:bg-gray-50 hover:border-gray-400 transition-all"
+                  >
+                    + Hubungkan Bahan Baku
                   </button>
                 </div>
               )}
