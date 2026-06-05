@@ -5,11 +5,23 @@ import React, { useState, useEffect, useRef } from 'react';
 import HeaderKitchen from '../components/kitchen/HeaderKitchen';
 import KanbanBoard from '../components/kitchen/KanbanBoard';
 import useKitchenStore from '../store/useKitchenStore';
+import { USE_DATABASE } from '../services/apiService';
 
 export default function KitchenPage() {
   const [audioEnabled, setAudioEnabled] = useState(false);
-  const { kitchenItems } = useKitchenStore();
+  const { kitchenItems, fetchKitchenItems } = useKitchenStore();
   const prevTodoCount = useRef(0);
+
+  // Poll database if database mode is active
+  useEffect(() => {
+    fetchKitchenItems();
+    if (USE_DATABASE) {
+      const timer = setInterval(() => {
+        fetchKitchenItems();
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [fetchKitchenItems]);
 
   // Audio effect untuk pesanan baru di 'todo'
   useEffect(() => {
