@@ -1,12 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../components/kasir/Header';
 import useHistoryStore from '../store/useHistoryStore';
+import useKitchenStore from '../store/useKitchenStore';
 import { Search } from 'lucide-react';
 import { formatRupiah } from '../data/menuData';
+import { USE_DATABASE } from '../services/apiService';
 
 export default function RiwayatPage() {
-  const { orders } = useHistoryStore();
+  const { orders, fetchOrders } = useHistoryStore();
+  const { kitchenItems, fetchKitchenItems } = useKitchenStore();
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    fetchOrders();
+    fetchKitchenItems();
+  }, [fetchOrders, fetchKitchenItems]);
+
+  const getOrderStatus = (order) => {
+    if (USE_DATABASE) {
+      return order.status || 'Selesai';
+    }
+    // Local calculation based on kitchen items
+    const relatedItems = kitchenItems.filter(item => item.orderReference === order.id);
+    if (relatedItems.length === 0) return 'Selesai';
+    
+    const allDone = relatedItems.every(item => item.status === 'done');
+    return allDone ? 'Selesai' : 'Diproses';
+  };
 
   const filteredOrders = orders.filter((order) => 
     order.id.toLowerCase().includes(search.toLowerCase())
@@ -68,9 +88,15 @@ export default function RiwayatPage() {
                         {formatRupiah(order.total)}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
-                          Selesai
-                        </span>
+                        {getOrderStatus(order) === 'Selesai' ? (
+                          <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                            Selesai
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold animate-pulse">
+                            Diproses
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
