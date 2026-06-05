@@ -2,9 +2,8 @@
 // API SERVICE - Helper untuk berkomunikasi dengan Backend PHP
 // ============================================================
 
-// Toggle untuk mengaktifkan koneksi database MySQL lewat API PHP
-// Dapat diubah lewat console: localStorage.setItem('pos_use_database', 'true')
-export const USE_DATABASE = localStorage.getItem('pos_use_database') === 'true';
+// Toggle untuk mengaktifkan koneksi database MySQL lewat API PHP (Dibuat false untuk mode tampilan statis)
+export const USE_DATABASE = false;
 
 // Base URL ke folder api PHP di XAMPP htdocs
 // Sesuaikan dengan letak folder proyek Anda di htdocs
