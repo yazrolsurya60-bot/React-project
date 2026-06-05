@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Coffee, Package, FileText, Settings, LogOut, Bell, Search, Menu, Users, UserCircle } from 'lucide-react';
+import { LayoutDashboard, Coffee, Package, FileText, LogOut, Bell, Search, Menu, Users } from 'lucide-react';
 import oakLogo from '../../assets/Oak_Coffe.png';
 
 export default function AdminLayout() {
@@ -18,8 +18,6 @@ export default function AdminLayout() {
     { name: 'Inventori', path: '/admin/inventory', icon: Package },
     { name: 'Kasir', path: '/admin/users', icon: Users },
     { name: 'Laporan', path: '/admin/reports', icon: FileText },
-    { name: 'Profil', path: '/admin/profile', icon: UserCircle },
-    { name: 'Pengaturan', path: '/admin/settings', icon: Settings },
   ];
 
   return (
