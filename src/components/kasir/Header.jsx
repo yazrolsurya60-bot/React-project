@@ -1,14 +1,63 @@
 // ============================================================
 // HEADER COMPONENT - Info Kasir + Jam Real-time
 // ============================================================
-import { useState, useEffect } from 'react';
-import { Clock, User, LayoutGrid, History, Settings, LogOut } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Clock, User, LayoutGrid, History, LogOut } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import useKitchenStore from '../../store/useKitchenStore';
+import { USE_DATABASE } from '../../services/apiService';
 
 export default function Header() {
   const [now, setNow] = useState(new Date());
   const location  = useLocation();
   const navigate  = useNavigate();
+  
+  // Read logged in cashier info
+  const sessionUser = sessionStorage.getItem('pos_user');
+  const loggedUser = sessionUser ? JSON.parse(sessionUser) : { name: 'Kasir', role: 'Kasir' };
+
+  const { kitchenItems, fetchKitchenItems } = useKitchenStore();
+  const prevDoneCount = useRef(0);
+
+  // Poll kitchen queue if database is active (for ready notifications)
+  useEffect(() => {
+    fetchKitchenItems();
+    if (USE_DATABASE) {
+      const timer = setInterval(() => {
+        fetchKitchenItems();
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [fetchKitchenItems]);
+
+  // Alert Cashier when kitchen items status changes to 'done'
+  useEffect(() => {
+    const doneItems = kitchenItems.filter(item => item.status === 'done');
+
+    // Only notify if done items count increased since last check
+    if (doneItems.length > prevDoneCount.current) {
+      // If it's not the initial mount load
+      if (prevDoneCount.current > 0) {
+        const newestDone = doneItems[doneItems.length - 1];
+        if (newestDone) {
+          toast.success(`Pesanan ${newestDone.name} untuk ${newestDone.customerName || 'Tanpa Nama'} SIAP SAJI! ☕`, {
+            duration: 6000,
+            position: 'top-right',
+            style: {
+              background: '#000000',
+              color: '#ffffff',
+              borderRadius: '16px',
+              padding: '16px',
+              fontWeight: '900',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+            }
+          });
+        }
+      }
+    }
+    prevDoneCount.current = doneItems.length;
+  }, [kitchenItems]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('pos_user');
@@ -91,10 +140,10 @@ export default function Header() {
             <User size={14} className="text-white" />
           </div>
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">Budi Santoso</p>
+            <p className="text-white font-semibold text-sm leading-tight">{loggedUser.name}</p>
             <div className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <p className="text-emerald-400 text-[10px] font-medium">Shift Pagi • Aktif</p>
+              <p className="text-emerald-400 text-[10px] font-medium">{loggedUser.role} • Aktif</p>
             </div>
           </div>
         </div>
